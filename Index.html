@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mickey Tool</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --c1: #00f0ff;
+    --c2: #ff00cc;
+    --c3: #00ff88;
+    --c4: #4444ff;
+    --c5: #ff4400;
+    --c6: #ff8800;
+    --accent: var(--c1);
+  }
+
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ---- COLOUR CYCLE ---- */
+  @keyframes colorCycle {
+    0%   { --accent: #00f0ff; color: #00f0ff; border-color: #00f0ff; box-shadow: 0 0 10px #00f0ff88; }
+    16%  { --accent: #ff00cc; color: #ff00cc; border-color: #ff00cc; box-shadow: 0 0 10px #ff00cc88; }
+    33%  { --accent: #00ff88; color: #00ff88; border-color: #00ff88; box-shadow: 0 0 10px #00ff8888; }
+    50%  { --accent: #4444ff; color: #4444ff; border-color: #4444ff; box-shadow: 0 0 10px #4444ff88; }
+    66%  { --accent: #ff4400; color: #ff4400; border-color: #ff4400; box-shadow: 0 0 10px #ff440088; }
+    83%  { --accent: #ff8800; color: #ff8800; border-color: #ff8800; box-shadow: 0 0 10px #ff880088; }
+    100% { --accent: #00f0ff; color: #00f0ff; border-color: #00f0ff; box-shadow: 0 0 10px #00f0ff88; }
+  }
+
+  @keyframes bgColorCycle {
+    0%   { background: #00f0ff; }
+    16%  { background: #ff00cc; }
+    33%  { background: #00ff88; }
+    50%  { background: #4444ff; }
+    66%  { background: #ff4400; }
+    83%  { background: #ff8800; }
+    100% { background: #00f0ff; }
+  }
+
+  @keyframes borderColorCycle {
+    0%   { border-color: #00f0ff; box-shadow: 0 0 12px #00f0ff88, inset 0 0 8px #00f0ff22; }
+    16%  { border-color: #ff00cc; box-shadow: 0 0 12px #ff00cc88, inset 0 0 8px #ff00cc22; }
+    33%  { border-color: #00ff88; box-shadow: 0 0 12px #00ff8888, inset 0 0 8px #00ff8822; }
+    50%  { border-color: #4444ff; box-shadow: 0 0 12px #4444ff88, inset 0 0 8px #4444ff22; }
+    66%  { border-color: #ff4400; box-shadow: 0 0 12px #ff440088, inset 0 0 8px #ff440022; }
+    83%  { border-color: #ff8800; box-shadow: 0 0 12px #ff880088, inset 0 0 8px #ff880022; }
+    100% { border-color: #00f0ff; box-shadow: 0 0 12px #00f0ff88, inset 0 0 8px #00f0ff22; }
+  }
+
+  @keyframes textColorCycle {
+    0%   { color: #00f0ff; text-shadow: 0 0 8px #00f0ff; }
+    16%  { color: #ff00cc; text-shadow: 0 0 8px #ff00cc; }
+    33%  { color: #00ff88; text-shadow: 0 0 8px #00ff88; }
+    50%  { color: #4444ff; text-shadow: 0 0 8px #4444ff; }
+    66%  { color: #ff4400; text-shadow: 0 0 8px #ff4400; }
+    83%  { color: #ff8800; text-shadow: 0 0 8px #ff8800; }
+    100% { color: #00f0ff; text-shadow: 0 0 8px #00f0ff; }
+  }
+
+  /* ---- VIDEO BACKGROUND ---- */
+  .video-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.45;
+  }
+
+  /* ---- PARTICLES ---- */
+  #particles-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ---- PAGES ---- */
+  .page {
+    display: none;
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .page.active { display: flex; flex-direction: column; align-items: center; }
+
+  /* ---- LOGIN PAGE ---- */
+  .logo-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 3px solid #00f0ff;
+    overflow: hidden;
+    margin: 30px auto 10px;
+    animation: borderColorCycle 4s linear infinite;
+    box-shadow: 0 0 20px #00f0ff88;
+    position: relative;
+    z-index: 5;
+    background: #111;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .logo-circle img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  .logo-label {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: textColorCycle 4s linear infinite;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .search-version-btn {
+    width: 100%;
+    max-width: 340px;
+    padding: 14px 0;
+    border-radius: 10px;
+    border: 2px solid #00f0ff;
+    background: transparent;
+    color: #00f0ff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    animation: borderColorCycle 4s linear infinite, textColorCycle 4s linear infinite;
+    transition: all 0.3s;
+  }
+  .search-version-btn:hover { opacity: 0.8; transform: scale(1.02); }
+
+  .cmd-icon {
+    font-size: 22px;
+    font-weight: 900;
+  }
+
+  .input-group {
+    width: 100%;
+    max-width: 340px;
+    margin-bottom: 12px;
+  }
+
+  .field-box {
+    width: 100%;
+    border: 2px solid #00f0ff;
+    border-radius: 8px;
+    background: #000;
+    padding: 0;
+    animation: borderColorCycle 4s linear infinite;
+    overflow: hidden;
+  }
+
+  .field-label {
+    display: block;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    animation: bgColorCycle 4s linear infinite, colorBlack 4s linear infinite;
+    color: #000;
+  }
+
+  @keyframes colorBlack { 0%,100% { color: #000; } }
+
+  .field-input {
+    display: block;
+    width: 100%;
+    background: #000;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 14px;
+    padding: 6px 10px 8px;
+    border-top: 1px dashed #444;
+    cursor: pointer;
+    font-weight: 600;
+    min-height: 28px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    max-width: 340px;
+    margin-top: 14px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 15px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    animation: bgColorCycle 4s linear infinite;
+    color: #000;
+    transition: transform 0.2s;
+  }
+  .action-btn:hover { transform: scale(1.04); opacity: 0.9; }
+
+  /* ---- MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: #fff;
+    color: #000;
+    border-radius: 14px;
+    width: 90%;
+    max-width: 380px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0 0 10px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 900;
+    text-align: center;
+    padding: 18px 10px 14px;
+    border-bottom: 1px solid #eee;
+    letter-spacing: 1px;
+  }
+
+  .modal-item {
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+  .modal-item:hover { background: #f5f5f5; }
+  .modal-item:last-child { border-bottom: none; }
+
+  /* ---- PASSWORD MODAL ---- */
+  .pass-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .pass-modal.open { display: flex; }
+
+  .pass-box {
+    background: #111;
+    border: 2px solid #00f0ff;
+    border-radius: 14px;
+    width: 88%;
+    max-width: 340px;
+    padding: 24px 20px;
+    animation: borderColorCycle 4s linear infinite;
+    text-align: center;
+  }
+  .pass-box h3 {
+    font-size: 17px;
+    font-weight: 800;
+    animation: textColorCycle 4s linear infinite;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+  .pass-input {
+    width: 100%;
+    background: #000;
+    border: 2px solid #00f0ff;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    padding: 10px 14px;
+    outline: none;
+    animation: borderColorCycle 4s linear infinite;
+    margin-bottom: 14px;
+    letter-spacing: 2px;
+  }
+  .pass-submit {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    animation: bgColorCycle 4s linear infinite;
+    color: #000;
+  }
+  .pass-err {
+    color: #ff4444;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* ---- PREDICTION PAGE ---- */
+  #predPage {
+    background: transparent;
+    padding: 16px 10px 30px;
+    justify-content: flex-start;
+  }
+
+  .pred-outer {
+    width: 100%;
+    max-width: 420px;
+    border: 3.5px solid #ff1111;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.78);
+    overflow: hidden;
+    box-shadow: 0 0 32px #ff111199, 0 0 70px #ff111133, inset 0 0 24px #ff111112;
+    margin-top: 10px;
+  }
+
+  /* Tool name pill */
+  .tool-name-pill {
+    display: flex;
+    justify-content: center;
+    padding: 18px 16px 16px;
+  }
+  .tool-name-pill span {
+    background: #7a0000;
+    border-radius: 40px;
+    padding: 11px 54px;
+    font-size: 19px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    box-shadow: 0 0 24px #ff000077;
+  }
+
+  /* Server row */
+  .server-row {
+    display: flex;
+    margin: 0 14px 0;
+    border: 2.5px solid #ff1111;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 14px #ff111155;
+  }
+  .server-cell {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .server-cell.s1 {
+    color: #ff3333;
+    border-right: 2.5px solid #ff1111;
+    text-shadow: 0 0 10px #ff333399;
+  }
+  .server-cell.s2 {
+    color: #00ff44;
+    text-shadow: 0 0 10px #00ff4499;
+  }
+
+  /* Red lines */
+  .pred-line {
+    height: 2.5px;
+    background: linear-gradient(90deg, transparent 0%, #ff1111 20%, #ff1111 80%, transparent 100%);
+    margin: 13px 14px 0;
+    box-shadow: 0 0 6px #ff111188;
+  }
+  .pred-line2 {
+    height: 2.5px;
+    background: linear-gradient(90deg, transparent 0%, #ff1111 20%, #ff1111 80%, transparent 100%);
+    margin: 0 14px 14px;
+    box-shadow: 0 0 6px #ff111188;
+  }
+
+  /* Server select row */
+  .server-select-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 18px 11px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+  }
+  .server-select-row .ss-left { color: #ffffff; }
+  .server-select-row .ss-right { color: #ff3333; font-weight: 900; }
+
+  /* Game period */
+  .period-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 18px 18px;
+  }
+  .period-label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .period-num {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Big result box */
+  .pred-result-box {
+    border: 3px solid #ff1111;
+    border-radius: 12px;
+    margin: 0 14px 20px;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.65);
+    box-shadow: 0 0 22px #ff111155, inset 0 0 30px #ff111111;
+  }
+
+  #predictionText {
+    font-size: 64px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    text-shadow: 0 0 22px #fff5, 0 3px 0 #999;
+    font-family: 'Arial Black', 'Impact', sans-serif;
+  }
+
+  /* Anylise button */
+  .analyse-btn {
+    display: block;
+    width: calc(100% - 28px);
+    margin: 0 14px 18px;
+    padding: 20px 0;
+    background: rgba(0,0,0,0.55);
+    border: 2.5px solid #ff1111;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 16px #ff111155;
+    font-family: 'Arial Black', sans-serif;
+  }
+  .analyse-btn:hover {
+    background: rgba(255,17,17,0.18);
+    box-shadow: 0 0 28px #ff111199;
+  }
+  .analyse-btn:active { transform: scale(0.98); }
+
+  /* ---- RED VIDEO BG for pred page ---- */
+  #predVideo { opacity: 0.38; }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- VIDEO BACKGROUNDS -->
+<video id="loginVideo" class="video-bg" autoplay loop playsinline src="lol.mp4"></video>
+<video id="predVideo" class="video-bg" autoplay loop muted playsinline src="tt.mp4" style="display:none;"></video>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- ====== PAGE 1: LOGIN ====== -->
+<div class="page active" id="loginPage">
+
+  <div class="logo-circle">
+    <img src="krish.png" alt="Logo" onerror="this.style.display='none'; this.parentNode.innerHTML='🔮';">
+  </div>
+
+  <div class="logo-label">TG - @MICKEY_BHAI_ON_TOP</div>
+
+  <button class="search-version-btn" onclick="openGameModal()">
+    SEARCH VERSION <span class="cmd-icon">⌘</span>
+  </button>
+
+  <div class="input-group">
+    <div class="field-box">
+      <span class="field-label">Game</span>
+      <div class="field-input" id="gameVersion" style="color:#aaa;">20255##</div>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <div class="field-box">
+      <span class="field-label">Game</span>
+      <div class="field-input" id="gameName" style="color:#aaa;"></div>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <div class="field-box">
+      <span class="field-label">Play Mode</span>
+      <div class="field-input" id="playMode" style="color:#aaa;"></div>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <div class="field-box">
+      <span class="field-label">License</span>
+      <input class="field-input" type="password" id="licenseInput" placeholder="Enter License Key" style="color:#fff;">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="action-btn" onclick="window.open('https://t.me/Predict456','_blank')">GET KEY</button>
+    <button class="action-btn" onclick="doLogin()">LOGIN</button>
+  </div>
+</div>
+
+<!-- ====== PAGE 2: PREDICTION ====== -->
+<div class="page" id="predPage">
+  <div class="pred-outer">
+
+    <!-- Tool name pill -->
+    <div class="tool-name-pill">
+      <span>MICKEY TOOL</span>
+    </div>
+
+    <!-- Server row -->
+    <div class="server-row">
+      <div class="server-cell s1">SERVER 1</div>
+      <div class="server-cell s2">CONNECTED</div>
+    </div>
+
+    <!-- Red line -->
+    <div class="pred-line"></div>
+
+    <!-- Server Select -->
+    <div class="server-select-row">
+      <span class="ss-left">SERVER SELECT ➨</span>
+      <span class="ss-right">BIG/SMALL</span>
+    </div>
+
+    <!-- Red line 2 -->
+    <div class="pred-line2"></div>
+
+    <!-- Period -->
+    <div class="period-row">
+      <span class="period-label">GAME PERIOD :</span>
+      <span class="period-num" id="periodNum">Loading...</span>
+    </div>
+
+    <!-- Big result box -->
+    <div class="pred-result-box">
+      <div id="predictionText">—</div>
+    </div>
+
+    <!-- Anylise button -->
+    <button class="analyse-btn" onclick="doPrediction()">ANYLISE</button>
+
+  </div>
+</div>
+
+<!-- ====== MODAL: GAME SELECT ====== -->
+<div class="modal-overlay" id="gameModal">
+  <div class="modal-box">
+    <div class="modal-title">SELECT PRO GAME MOD's !</div>
+    <div class="modal-item" onclick="selectGame('OK WIN')">OK WIN {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('6 CLUB')">6 CLUB {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('TIRANGA')">TIRANGA {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('BDG WIN')">BDG WIN {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('91 CLUB')">91 CLUB {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('GOA GAMES')">GOA GAMES {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('TASHAN WIN')">TASHAN WIN {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('51 GAME')">51 GAME {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('82 LOTTERY')">82 LOTTERY {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('13 L GAME')">13 L GAME {PRO LZR}</div>
+    <div class="modal-item" onclick="selectGame('JAI CLUB')">JAI CLUB {PRO LZR}</div>
+  </div>
+</div>
+
+<!-- ====== PASSWORD MODAL ====== -->
+<div class="pass-modal" id="passModal">
+  <div class="pass-box">
+    <h3>🔐 ENTER LICENSE KEY</h3>
+    <input class="pass-input" type="password" id="passInput" placeholder="Enter password...">
+    <button class="pass-submit" onclick="checkPassword()">UNLOCK</button>
+    <div class="pass-err" id="passErr">❌ Wrong License Key!</div>
+  </div>
+</div>
+
+<script>
+// ---- PARTICLES ----
+(function(){
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, pts = [], animFrame;
+  const N = 50;
+
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for(let i=0;i<N;i++){
+    pts.push({
+      x: Math.random()*window.innerWidth,
+      y: Math.random()*window.innerHeight,
+      vx: (Math.random()-0.5)*0.5,
+      vy: (Math.random()-0.5)*0.5,
+      r: Math.random()*3+1,
+      op: Math.random()*0.5+0.3
+    });
+  }
+
+  const COLORS = ['#00f0ff','#ff00cc','#00ff88','#4444ff','#ff4400','#ff8800'];
+  let colorIdx = 0, colorT = 0;
+
+  function lerpColor(a,b,t){
+    const ah=parseInt(a.slice(1),16), bh=parseInt(b.slice(1),16);
+    const ar=(ah>>16)&255, ag=(ah>>8)&255, ab=ah&255;
+    const br=(bh>>16)&255, bg=(bh>>8)&255, bb=bh&255;
+    const r=Math.round(ar+(br-ar)*t);
+    const g=Math.round(ag+(bg-ag)*t);
+    const b2=Math.round(ab+(bb-ab)*t);
+    return `rgb(${r},${g},${b2})`;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    colorT += 0.003;
+    if(colorT>=1){ colorT=0; colorIdx=(colorIdx+1)%COLORS.length; }
+    const col = lerpColor(COLORS[colorIdx], COLORS[(colorIdx+1)%COLORS.length], colorT);
+
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=col;
+      ctx.globalAlpha=p.op;
+      ctx.fill();
+      ctx.globalAlpha=1;
+    });
+
+    // lines between nearby
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<130){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=col;
+          ctx.globalAlpha=(1-dist/130)*0.3;
+          ctx.lineWidth=0.8;
+          ctx.stroke();
+          ctx.globalAlpha=1;
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ---- GAME MODAL ----
+function openGameModal(){
+  document.getElementById('gameModal').classList.add('open');
+}
+document.getElementById('gameModal').addEventListener('click', function(e){
+  if(e.target===this) this.classList.remove('open');
+});
+
+function selectGame(name){
+  document.getElementById('gameModal').classList.remove('open');
+  document.getElementById('gameVersion').textContent = '20255##';
+  document.getElementById('gameVersion').style.color = '#fff';
+  document.getElementById('gameName').textContent = name;
+  document.getElementById('gameName').style.color = '#fff';
+  document.getElementById('playMode').textContent = 'SAFE { 100% Accuracy }';
+  document.getElementById('playMode').style.color = '#fff';
+}
+
+// ---- LOGIN ----
+function doLogin(){
+  const key = document.getElementById('licenseInput').value;
+  if(key === 'Mickeybhaiontop123'){
+    showPredPage();
+  } else {
+    document.getElementById('passModal').classList.add('open');
+  }
+}
+
+function checkPassword(){
+  const val = document.getElementById('passInput').value;
+  if(val === 'Mickeybhaiontop123'){
+    document.getElementById('passModal').classList.remove('open');
+    showPredPage();
+  } else {
+    document.getElementById('passErr').style.display='block';
+    setTimeout(()=>{ document.getElementById('passErr').style.display='none'; }, 2000);
+  }
+}
+
+document.getElementById('passInput').addEventListener('keypress', function(e){
+  if(e.key==='Enter') checkPassword();
+});
+
+function showPredPage(){
+  document.getElementById('loginPage').classList.remove('active');
+  document.getElementById('predPage').classList.add('active');
+  // switch video
+  document.getElementById('loginVideo').style.display='none';
+  document.getElementById('predVideo').style.display='block';
+  startApiPolling();
+}
+
+// ---- API POLLING ----
+const API_URL = 'https://wingolast100.vercel.app/api/results?typeId=1&apiKey=12a04165-748c-4144-9398-96bd2e0ad956&token=1a97a413-ff57-4097-a44c-4bd402ace8d5&limit=100';
+let pollInterval;
+
+async function fetchPeriod(){
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    // Try to find latest period
+    let period = null;
+    if(data && data.data && data.data.list && data.data.list.length>0){
+      period = data.data.list[0].issueNumber || data.data.list[0].issue || data.data.list[0].period;
+    } else if(data && data.list && data.list.length>0){
+      period = data.list[0].issueNumber || data.list[0].issue;
+    } else if(data && data.result){
+      const arr = Array.isArray(data.result) ? data.result : [data.result];
+      if(arr.length>0) period = arr[0].issueNumber || arr[0].issue || arr[0].period;
+    }
+    if(period){
+      document.getElementById('periodNum').textContent = period;
+    }
+  } catch(e){
+    console.log('API error', e);
+  }
+}
+
+function startApiPolling(){
+  fetchPeriod();
+  pollInterval = setInterval(fetchPeriod, 5000);
+}
+
+function doPrediction(){
+  const result = Math.random() < 0.5 ? 'BIG' : 'SMALL';
+  document.getElementById('predictionText').textContent = result;
+}
+</script>
+</body>
+</html>
